@@ -1,1 +1,242 @@
-#include <stdio.h>#include <stdlib.h>#include <math.h>#if defined(WIN32)//#  pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")#  include "glut.h"#elif defined(__APPLE__) || defined(MACOSX)#  include <GLUT/glut.h>#else#  include <GL/glut.h>#endif/*** ŒõŒ¹*/static const GLfloat lightpos[] = { 0.0, 0.0, 1.0, 0.0 }; /* ˆÊ’u@@@ */static const GLfloat lightcol[] = { 1.0, 1.0, 1.0, 1.0 }; /* ’¼ÚŒõ‹­“x */static const GLfloat lightamb[] = { 0.1, 0.1, 0.1, 1.0 }; /* ŠÂ‹«Œõ‹­“x *//*** ƒeƒNƒXƒ`ƒƒ*/#define TEXWIDTH  256                      /* ƒeƒNƒXƒ`ƒƒ‚Ì•@@@ */#define TEXHEIGHT 256                      /* ƒeƒNƒXƒ`ƒƒ‚Ì‚‚³@@ */static const char texture1[] = "room.raw"; /* ƒeƒNƒXƒ`ƒƒƒtƒ@ƒCƒ‹–¼ */#if 0static double genfunc[][4] = {   /* ƒeƒNƒXƒ`ƒƒ¶¬ŠÖ”‚Ìƒpƒ‰ƒ[ƒ^ */  { 1.0, 0.0, 0.0, 0.0 },  { 0.0, 1.0, 0.0, 0.0 },  { 0.0, 0.0, 1.0, 0.0 },  { 0.0, 0.0, 0.0, 1.0 },};#endif/*** ‰Šú‰»*/static void init(void){  /* ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ‚Ég‚¤”z—ñ */  GLubyte texture[TEXHEIGHT][TEXWIDTH][4];  FILE *fp;    /* ƒeƒNƒXƒ`ƒƒ‰æ‘œ‚Ì“Ç‚İ‚İ */  if ((fp = fopen(texture1, "rb")) != NULL) {    fread(texture, sizeof texture, 1, fp);    fclose(fp);  }  else {    perror(texture1);  }    /* ƒeƒNƒXƒ`ƒƒ‰æ‘œ‚ÍƒoƒCƒg’PˆÊ‚É‹l‚ß‚Ü‚ê‚Ä‚¢‚é */  glPixelStorei(GL_UNPACK_ALIGNMENT, 4);    /* ƒeƒNƒXƒ`ƒƒ‚ÌŠ„‚è“–‚Ä */  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXWIDTH, TEXHEIGHT, 0,               GL_RGBA, GL_UNSIGNED_BYTE, texture);    /* ƒeƒNƒXƒ`ƒƒ‚ğŠg‘åEk¬‚·‚é•û–@‚Ìw’è */  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);    /* ƒeƒNƒXƒ`ƒƒ‚ÌŒJ‚è•Ô‚µ•û–@‚Ìw’è */  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);    /* ƒeƒNƒXƒ`ƒƒŠÂ‹« */  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  #if 0  /* ¬‡‚·‚éF‚Ìİ’è */  static const GLfloat blend[] = { 0.0, 1.0, 0.0, 1.0 };  glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend);#endif  #if 0  /* ’¸“_‚ÌƒIƒuƒWƒFƒNƒg‹óŠÔ‚É‚¨‚¯‚éÀ•W’l‚ğg‚Á‚Äƒ}ƒbƒsƒ“ƒO‚·‚é */  glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);  glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);  glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);  glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);    /* ƒeƒNƒXƒ`ƒƒÀ•W¶¬ŠÖ”‚Ìİ’è */  glTexGendv(GL_S, GL_OBJECT_PLANE, genfunc[0]);  glTexGendv(GL_T, GL_OBJECT_PLANE, genfunc[1]);  glTexGendv(GL_R, GL_OBJECT_PLANE, genfunc[2]);  glTexGendv(GL_Q, GL_OBJECT_PLANE, genfunc[3]);#else  /* ƒXƒtƒBƒAƒ}ƒbƒsƒ“ƒO—p‚ÌƒeƒNƒXƒ`ƒƒÀ•W‚ğ¶¬‚·‚é */  glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);  glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);#endif    /* ƒAƒ‹ƒtƒ@ƒeƒXƒg‚Ì”»•ÊŠÖ” */  glAlphaFunc(GL_GREATER, 0.5);    /* ‰Šúİ’è */  glClearColor(0.3, 0.3, 1.0, 0.0);  glEnable(GL_DEPTH_TEST);  glDisable(GL_CULL_FACE);    /* ŒõŒ¹‚Ì‰Šúİ’è */  glEnable(GL_LIGHTING);  glEnable(GL_LIGHT0);  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightcol);  glLightfv(GL_LIGHT0, GL_SPECULAR, lightcol);  glLightfv(GL_LIGHT0, GL_AMBIENT, lightamb);}/* ” ‚ğ•`‚­ŠÖ”‚ÌéŒ¾ */#include "box.h"/*** ƒV[ƒ“‚Ì•`‰æ*/static void scene(void){  static const GLfloat color[] = { 1.0, 1.0, 1.0, 1.0 };  /* Ş¿ (F) */    /* Ş¿‚Ìİ’è */  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);    /* ƒAƒ‹ƒtƒ@ƒeƒXƒgŠJn */  glEnable(GL_ALPHA_TEST);    /* ƒeƒNƒXƒ`ƒƒƒ}ƒbƒsƒ“ƒOŠJn */  glEnable(GL_TEXTURE_2D);    /* ƒeƒNƒXƒ`ƒƒÀ•W‚Ì©“®¶¬‚ğ—LŒø‚É‚·‚é */  glEnable(GL_TEXTURE_GEN_S);  glEnable(GL_TEXTURE_GEN_T);#if 0  glEnable(GL_TEXTURE_GEN_R);  glEnable(GL_TEXTURE_GEN_Q);#endif#if 0  /* ” ‚ğ•`‚­ */  box(1.0, 1.0, 1.0);#else  /* ƒeƒB[ƒ|ƒbƒg‚ğ•`‚­ */  glutSolidTeapot(1.0);#endif  /* ƒeƒNƒXƒ`ƒƒÀ•W‚Ì©“®¶¬‚ğ–³Œø‚É‚·‚é */  glDisable(GL_TEXTURE_GEN_S);  glDisable(GL_TEXTURE_GEN_T);#if 0  glDisable(GL_TEXTURE_GEN_R);  glDisable(GL_TEXTURE_GEN_Q);#endif    /* ƒeƒNƒXƒ`ƒƒƒ}ƒbƒsƒ“ƒOI—¹ */  glDisable(GL_TEXTURE_2D);    /* ƒAƒ‹ƒtƒ@ƒeƒXƒgI—¹ */  glDisable(GL_ALPHA_TEST);}/****************************** GLUT ‚ÌƒR[ƒ‹ƒoƒbƒNŠÖ” ******************************//* ƒgƒ‰ƒbƒNƒ{[ƒ‹ˆ——pŠÖ”‚ÌéŒ¾ */#include "trackball.h"/* ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌƒTƒCƒNƒ‹ */#define FRAMES 360static void display(void){  /* ƒtƒŒ[ƒ€”‚ğƒJƒEƒ“ƒg‚µ‚ÄŠÔ‚Æ‚µ‚Äg‚¤ */  static int frame = 0;                      /* ƒtƒŒ[ƒ€”@@@@@@@ */  double t = (double)frame / (double)FRAMES; /* ŠÔ‚Æ‚Æ‚à‚É 0¨1 ‚É•Ï‰» */    if (++frame >= FRAMES) frame = 0;    /* ƒeƒNƒXƒ`ƒƒs—ñ‚Ìİ’è */  glMatrixMode(GL_TEXTURE);  glLoadIdentity();#if 0  glTranslated(0.5, 0.5, 0.0);  glRotated(t * 360.0, 0.0, 0.0, 1.0);#if 0  glScaled(0.5, 0.5, 1.0);  gluPerspective(60.0, 1.0, 1.0, 100.0);  gluLookAt(0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);#else  glTranslated(-0.5, -0.5, 0.0);#endif#endif    /* ƒ‚ƒfƒ‹ƒrƒ…[•ÏŠ·s—ñ‚Ìİ’è */  glMatrixMode(GL_MODELVIEW);  glLoadIdentity();    /* ŒõŒ¹‚ÌˆÊ’u‚ğİ’è */  glLightfv(GL_LIGHT0, GL_POSITION, lightpos);    /* ‹“_‚ÌˆÚ“®i•¨‘Ì‚Ì•û‚ğ‰œ‚ÉˆÚ“®j*/  glTranslated(0.0, 0.0, -3.0);    /* ƒgƒ‰ƒbƒNƒ{[ƒ‹ˆ—‚É‚æ‚é‰ñ“] */  glMultMatrixd(trackballRotation());    /* ‰æ–ÊƒNƒŠƒA */  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    /* ƒV[ƒ“‚Ì•`‰æ */  scene();    /* ƒ_ƒuƒ‹ƒoƒbƒtƒ@ƒŠƒ“ƒO */  glutSwapBuffers();}static void resize(int w, int h){  /* ƒgƒ‰ƒbƒNƒ{[ƒ‹‚·‚é”ÍˆÍ */  trackballRegion(w, h);    /* ƒEƒBƒ“ƒhƒE‘S‘Ì‚ğƒrƒ…[ƒ|[ƒg‚É‚·‚é */  glViewport(0, 0, w, h);    /* “§‹•ÏŠ·s—ñ‚Ìw’è */  glMatrixMode(GL_PROJECTION);    /* “§‹•ÏŠ·s—ñ‚Ì‰Šú‰» */  glLoadIdentity();  gluPerspective(60.0, (double)w / (double)h, 1.0, 100.0);}static void idle(void){  /* ‰æ–Ê‚Ì•`‚«‘Ö‚¦ */  glutPostRedisplay();}static void mouse(int button, int state, int x, int y){  switch (button) {  case GLUT_LEFT_BUTTON:    switch (state) {    case GLUT_DOWN:      /* ƒgƒ‰ƒbƒNƒ{[ƒ‹ŠJn */      trackballStart(x, y);      break;    case GLUT_UP:      /* ƒgƒ‰ƒbƒNƒ{[ƒ‹’â~ */      trackballStop(x, y);      break;    default:      break;    }    break;    default:      break;  }}static void motion(int x, int y){  /* ƒgƒ‰ƒbƒNƒ{[ƒ‹ˆÚ“® */  trackballMotion(x, y);}static void keyboard(unsigned char key, int x, int y){  switch (key) {  case 'q':  case 'Q':  case '\033':    /* ESC ‚© q ‚© Q ‚ğƒ^ƒCƒv‚µ‚½‚çI—¹ */    exit(0);  default:    break;  }}/*** ƒƒCƒ“ƒvƒƒOƒ‰ƒ€*/int main(int argc, char *argv[]){  glutInit(&argc, argv);  glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);  glutCreateWindow(argv[0]);  glutDisplayFunc(display);  glutReshapeFunc(resize);  glutIdleFunc(idle);  glutMouseFunc(mouse);  glutMotionFunc(motion);  glutKeyboardFunc(keyboard);  init();  glutMainLoop();  return 0;}
+ï»¿#if defined(__APPLE__) || defined(MACOSX)
+#  define GL_SILENCE_DEPRECATION
+#  include <GLUT/glut.h>
+#else
+#  if defined(_WIN32)
+#    define _CRT_SECURE_NO_WARNINGS
+#    if !defined(GL_CLAMP_TO_EDGE)
+#      define GL_CLAMP_TO_EDGE 0x812F
+#    endif
+//#    pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
+#  endif
+#  include <GL/glut.h>
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+/*
+** å…‰æº
+*/
+static const GLfloat lightpos[] = { 0.0f, 0.0f, 1.0f, 0.0f }; /* ä½ç½®ã€€ã€€ã€€ */
+static const GLfloat lightcol[] = { 1.0f, 1.0f, 1.0f, 1.0f }; /* ç›´æ¥å…‰å¼·åº¦ */
+static const GLfloat lightamb[] = { 0.1f, 0.1f, 0.1f, 1.0f }; /* ç’°å¢ƒå…‰å¼·åº¦ */
+
+/*
+** ãƒ†ã‚¯ã‚¹ãƒãƒ£
+*/
+#define TEXWIDTH  256                               /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®å¹…ã€€ã€€ã€€ */
+#define TEXHEIGHT 256                               /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®é«˜ã•ã€€ã€€ */
+static const char texture_file[] = "room.raw";      /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ•ã‚¡ã‚¤ãƒ«å */
+
+/*
+** åˆæœŸåŒ–
+*/
+static void init(void)
+{
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”»åƒã¯ãƒã‚¤ãƒˆå˜ä½ã«è©°ã‚è¾¼ã¾ã‚Œã¦ã„ã‚‹ */
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®èª­ã¿è¾¼ã¿ã«ä½¿ã†é…åˆ— */
+  GLubyte texture[TEXHEIGHT][TEXWIDTH][4];
+  FILE *fp;
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”»åƒã®èª­ã¿è¾¼ã¿ */
+  if ((fp = fopen(texture_file, "rb")) != NULL) {
+    fread(texture, sizeof texture, 1, fp);
+    fclose(fp);
+  }
+  else {
+    perror(texture_file);
+  }
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®å‰²ã‚Šå½“ã¦ */
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXWIDTH, TEXHEIGHT, 0,
+    GL_RGBA, GL_UNSIGNED_BYTE, texture);
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’æ‹¡å¤§ãƒ»ç¸®å°ã™ã‚‹æ–¹æ³•ã®æŒ‡å®š */
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ç¹°ã‚Šè¿”ã—æ–¹æ³•ã®æŒ‡å®š */
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ç’°å¢ƒ */
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+#if 0 /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ã«åˆ¥ã®è‰²ã‚’æ··åˆã™ã‚‹å ´åˆã¯ 1 ã«ã—ã¦ãã ã•ã„ */
+  static const GLfloat blend[] = { 0.0, 1.0, 0.0, 1.0 };
+  glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend);
+#endif
+
+  /* ã‚¹ãƒ•ã‚£ã‚¢ãƒãƒƒãƒ”ãƒ³ã‚°ç”¨ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™ã‚’ç”Ÿæˆã™ã‚‹ */
+  glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+  glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+
+  /* åˆæœŸè¨­å®š */
+  glClearColor(0.3f, 0.3f, 1.0f, 0.0f);
+  glEnable(GL_DEPTH_TEST);
+  glDisable(GL_CULL_FACE);
+
+  /* å…‰æºã®åˆæœŸè¨­å®š */
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightcol);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, lightcol);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, lightamb);
+}
+
+/* ç®±ã‚’æãé–¢æ•°ã®å®£è¨€ */
+#include "box.h"
+
+/*
+** ã‚·ãƒ¼ãƒ³ã®æç”»
+*/
+static void scene(void)
+{
+  static const GLfloat color[] = { 1.0, 1.0, 1.0, 1.0 };  /* æè³ª (è‰²) */
+
+  /* æè³ªã®è¨­å®š */
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒãƒƒãƒ”ãƒ³ã‚°é–‹å§‹ */
+  glEnable(GL_TEXTURE_2D);
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™ã®è‡ªå‹•ç”Ÿæˆã‚’æœ‰åŠ¹ã«ã™ã‚‹ */
+  glEnable(GL_TEXTURE_GEN_S);
+  glEnable(GL_TEXTURE_GEN_T);
+
+  /* ãƒ†ã‚£ãƒ¼ãƒãƒƒãƒˆã‚’æã */
+  glutSolidTeapot(1.0);
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™ã®è‡ªå‹•ç”Ÿæˆã‚’ç„¡åŠ¹ã«ã™ã‚‹ */
+  glDisable(GL_TEXTURE_GEN_S);
+  glDisable(GL_TEXTURE_GEN_T);
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒãƒƒãƒ”ãƒ³ã‚°çµ‚äº† */
+  glDisable(GL_TEXTURE_2D);
+}
+
+/****************************
+** GLUT ã®ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯é–¢æ•° **
+****************************/
+
+/* ãƒˆãƒ©ãƒƒã‚¯ãƒœãƒ¼ãƒ«å‡¦ç†ç”¨é–¢æ•°ã®å®£è¨€ */
+#include "trackball.h"
+
+static void display(void)
+{
+  /* ãƒ¢ãƒ‡ãƒ«ãƒ“ãƒ¥ãƒ¼å¤‰æ›è¡Œåˆ—ã®è¨­å®š */
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  /* å…‰æºã®ä½ç½®ã‚’è¨­å®š */
+  glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+
+  /* è¦–ç‚¹ã®ç§»å‹•ï¼ˆç‰©ä½“ã®æ–¹ã‚’å¥¥ã«ç§»å‹•ï¼‰*/
+  glTranslated(0.0, 0.0, -3.0);
+  //gluLookAt(1.5, 2.0, 2.5, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+  /* ãƒˆãƒ©ãƒƒã‚¯ãƒœãƒ¼ãƒ«å‡¦ç†ã§å›³å½¢ã‚’å›è»¢ */
+  //glMultMatrixd(trackballRotation());
+
+  /* ãƒ†ã‚¯ã‚¹ãƒãƒ£è¡Œåˆ—ã®è¨­å®š */
+  glMatrixMode(GL_TEXTURE);
+  glLoadIdentity();
+
+  /* ãƒˆãƒ©ãƒƒã‚¯ãƒœãƒ¼ãƒ«å‡¦ç†ã§ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å›è»¢ */
+  glMultMatrixd(trackballRotation());
+
+  /* ç”»é¢ã‚¯ãƒªã‚¢ */
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  /* ã‚·ãƒ¼ãƒ³ã®æç”» */
+  scene();
+
+  /* ãƒ€ãƒ–ãƒ«ãƒãƒƒãƒ•ã‚¡ãƒªãƒ³ã‚° */
+  glutSwapBuffers();
+}
+
+static void resize(int w, int h)
+{
+  /* ãƒˆãƒ©ãƒƒã‚¯ãƒœãƒ¼ãƒ«ã™ã‚‹ç¯„å›² */
+  trackballRegion(w, h);
+
+  /* ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦å…¨ä½“ã‚’ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆã«ã™ã‚‹ */
+  glViewport(0, 0, w, h);
+
+  /* é€è¦–å¤‰æ›è¡Œåˆ—ã®æŒ‡å®š */
+  glMatrixMode(GL_PROJECTION);
+
+  /* é€è¦–å¤‰æ›è¡Œåˆ—ã®åˆæœŸåŒ– */
+  glLoadIdentity();
+  gluPerspective(60.0, (double)w / (double)h, 1.0, 100.0);
+}
+
+static void idle(void)
+{
+  /* ç”»é¢ã®æãæ›¿ãˆ */
+  glutPostRedisplay();
+}
+
+static void mouse(int button, int state, int x, int y)
+{
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    switch (state) {
+    case GLUT_DOWN:
+      /* ãƒˆãƒ©ãƒƒã‚¯ãƒœãƒ¼ãƒ«é–‹å§‹ */
+      trackballStart(x, y);
+      glutIdleFunc(idle);
+      break;
+    case GLUT_UP:
+      /* ãƒˆãƒ©ãƒƒã‚¯ãƒœãƒ¼ãƒ«åœæ­¢ */
+      trackballStop(x, y);
+      glutIdleFunc(0);
+      break;
+    default:
+      break;
+    }
+    break;
+    default:
+      break;
+  }
+}
+
+static void motion(int x, int y)
+{
+  /* ãƒˆãƒ©ãƒƒã‚¯ãƒœãƒ¼ãƒ«ç§»å‹• */
+  trackballMotion(x, y);
+}
+
+static void keyboard(unsigned char key, int x, int y)
+{
+  switch (key) {
+  case 'q':
+  case 'Q':
+  case '\033':
+    /* ESC ã‹ q ã‹ Q ã‚’ã‚¿ã‚¤ãƒ—ã—ãŸã‚‰çµ‚äº† */
+    exit(0);
+  default:
+    break;
+  }
+}
+
+/*
+** ãƒ¡ã‚¤ãƒ³ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
+*/
+int main(int argc, char *argv[])
+{
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
+  glutCreateWindow(argv[0]);
+  glutDisplayFunc(display);
+  glutReshapeFunc(resize);
+  glutMouseFunc(mouse);
+  glutMotionFunc(motion);
+  glutKeyboardFunc(keyboard);
+  init();
+  glutMainLoop();
+  return 0;
+}

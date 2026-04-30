@@ -2,6 +2,7 @@
 #  define GL_SILENCE_DEPRECATION
 #  include <GLUT/glut.h>
 #else
+#  include <GL/glut.h>
 #  if defined(_WIN32)
 #    define _CRT_SECURE_NO_WARNINGS
 #    if !defined(GL_CLAMP_TO_EDGE)
@@ -9,7 +10,6 @@
 #    endif
 //#    pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 #  endif
-#  include <GL/glut.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +34,7 @@ static const char texture_file[] = "room.raw";      /* テクスチャファイ�
 */
 static void init(void)
 {
-  /* テクスチャ画像はバイト単位に詰め込まれている */
+  /* テクスチャ画像はワード単位に詰め込まれている */
   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
   /* テクスチャの読み込みに使う配列 */

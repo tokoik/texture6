@@ -18,7 +18,7 @@ set(HEADERS
 
 # テクスチャファイルなど
 set(TEXTURE_FILES
-    "room.raw"
+    room.raw
 )
 
 if(APPLE)

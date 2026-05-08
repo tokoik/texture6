@@ -36,7 +36,7 @@ static const char texture_file[] = "room.raw";      /* テクスチャファイ�
 /*
 ** 初期化
 */
-static void init(void)
+static void init()
 {
   /* テクスチャ画像はワード単位に詰め込まれている */
   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
@@ -94,7 +94,7 @@ static void init(void)
 /*
 ** シーンの描画
 */
-static void scene(void)
+static void scene()
 {
   static const GLfloat color[] = { 1.0f, 1.0f, 1.0f, 1.0f };   /* 材質 (色) */
 
@@ -123,7 +123,7 @@ static void scene(void)
 ** GLUT のコールバック関数 **
 ****************************/
 
-static void display(void)
+static void display()
 {
   /* モデルビュー変換行列の設定 */
   glMatrixMode(GL_MODELVIEW);
@@ -172,7 +172,7 @@ static void resize(int w, int h)
   gluPerspective(60.0, (double)w / (double)h, 0.1, 10.0);
 }
 
-static void idle(void)
+static void idle()
 {
   /* 画面の描き替え */
   glutPostRedisplay();

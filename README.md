@@ -10,7 +10,7 @@
 
 プログラムを実行すると、周囲の情景が映り込んだティーポットが表示されます。周囲の情景の画像（room.raw）は環境マップといいます。マウスのドラッグでティーポットを回転することができます。
 
-![スフィアマッピング](https://tokoik.github.io/blog/assets/images/texture6.webp)
+![スフィアマッピング](https://tokoik.github.io/blog/assets/images/texture/texture6.webp)
 
 ## 2. ビルド方法
 
